@@ -1,10 +1,10 @@
 name:                my-project
 version:             0.1.0.0
-github:              "githubuser/my-project"
+github:              "iu-haskell-fall-2018/my-project"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+author:              "Nickolay Kudasov"
+maintainer:          "n.kudasov@innopolis.ru"
+copyright:           "2018 Innopolis University"
 
 extra-source-files:
 - README.md
@@ -17,7 +17,10 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/my-project#readme>
+description:         Please see the README on GitHub at <https://github.com/iu-haskell-fall-2018/my-project#readme>
+
+ghc-options:
+- -Wall -fno-warn-type-defaults
 
 dependencies:
 - base >= 4.7 && < 5
