@@ -64,6 +64,27 @@ trying out things.
 
 Note that you can run executable from GHCi by invoking `main`.
 
+### GHCi commands
+
+There are some useful commands in GHCi that might help
+you with the development process:
+
+- `:t` or `:type` — show the type of an expression:
+
+    >>> :t map (+1)
+    map (+1) :: Num b => [b] -> [b]
+
+- `:l` or `:load` — load file or module:
+
+    >>> :load src/MyProject.hs
+    [1 of 1] Compiling MyProject        ( src/MyProject.hs, interpreted )
+    Ok, one module loaded.
+
+- `:set` and `:unset` — turn an option on/off:
+
+    >>> :set -XOverloadedStrings
+    >>> :set -Wall -fno-warn-type-defaults
+
 ## `ghcid`
 
 For faster feedback from the compiler it is recommended to use `ghcid`
