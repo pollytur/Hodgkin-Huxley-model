@@ -46,7 +46,7 @@ executables:
     - my-project
 
 tests:
-  my-project-test:
+  spec:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -55,6 +55,9 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - my-project
+    - hspec
+    - HUnit
+    - QuickCheck
 
   doctests:
     source-dirs: test
