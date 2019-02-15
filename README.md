@@ -1,6 +1,6 @@
 # project-template
 
-[![Build Status](https://travis-ci.org/iu-haskell-fall-2018/project-template.svg?branch=master)](https://travis-ci.org/iu-haskell-fall-2018/project-template)
+[![Build Status](https://travis-ci.org/iu-haskell-spring-2019/project-template.svg?branch=master)](https://travis-ci.org/iu-haskell-spring-2019/project-template)
 
 Template for a Haskell project.
 
