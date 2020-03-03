@@ -6,6 +6,10 @@ Template for a Haskell project.
 
 ### Prerequisites
 
+```sh
+brew install pkg-config cairo
+```
+
 This project relies on the [Haskell Stack tool](https://docs.haskellstack.org/en/stable/README/).
 
 It is recommended to get Stack with batteries included by
