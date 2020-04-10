@@ -25,6 +25,20 @@ packages:
       sha256: 4552e3c0f2ef0f16285c38898d7e2b6aeea67d4e37cd203b0c82f70592096c45
   original:
     hackage: gtk2hs-buildtools-0.13.8.0@sha256:132f38155fc677430a47ea750918973161c876fb6f281d342ac2f07eb99229ce,5238
+- completed:
+    hackage: gloss-1.13.1.1@sha256:c0a66fc81fca191714b48b8faa8166f4222f06305e34094ceb586bade3a892ad,4194
+    pantry-tree:
+      size: 3807
+      sha256: 570e79a2ef42443cfcb657e2944922935c4392ac38eebf51bd32dad65ff304c1
+  original:
+    hackage: gloss-1.13.1.1
+- completed:
+    hackage: gloss-rendering-1.13.1.1@sha256:e7e1e16596a0b30dfc35c8f09685fc0642faefa8729227abaad99bdb2f1ba883,1715
+    pantry-tree:
+      size: 895
+      sha256: f16864d3b42b89407dac6d0959601e127147ed2bd3ce8f0cba8a9afbc0b3a2a2
+  original:
+    hackage: gloss-rendering-1.13.1.1
 snapshots:
 - completed:
     size: 524163

@@ -1,10 +1,10 @@
 name:                my-project
 version:             0.1.0.0
-github:              "iu-haskell-fall-2018/my-project"
+github:              "https://github.com/pollytur/Hodgkin-Huxley-model"
 license:             BSD3
-author:              "Nickolay Kudasov"
-maintainer:          "n.kudasov@innopolis.ru"
-copyright:           "2018 Innopolis University"
+author:              "Polina Turischeva & Nickolay Kudasov"
+maintainer:          "p.turischeva@innopolis.university"
+copyright:           "2020 Innopolis University"
 
 extra-source-files:
 - README.md
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/iu-haskell-fall-2018/my-project#readme>
+description:         Please see the README on GitHub at <https://github.com/pollytur/Hodgkin-Huxley-model>
 
 custom-setup:
   dependencies:
@@ -29,9 +29,13 @@ ghc-options:
 - -Wall -fno-warn-type-defaults
 
 dependencies:
-- base >= 4.7 && < 5
+- base >= 4.8 && < 5
 - Chart
 - Chart-cairo
+- vector
+- gloss
+- gloss-rendering
+
 
 library:
   source-dirs: src
