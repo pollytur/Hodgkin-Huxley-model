@@ -76,3 +76,14 @@ rungeKutta inputf (VectorLong(((vm0,n0),(m0, h0)), a)) (t0:time) step
   gL0  = gL * (vm - vl)
   
   lst = VectorLong (((vm, n), (m, h)),((gK0, gNa0),(gL0, gK0/gNa0)))
+
+
+-- defineModel:: (Double->Double)->Double->(VectorLong Double->[Double]->[VectorLong  Double])
+-- defineModel inputf step = rungeKutta inputf
+
+oneStep :: (Double->Double)->VectorLong Double -> Double -> Double ->VectorLong  Double
+oneStep inputf vect t0 step = head res
+  where
+    res = rungeKutta inputf vect [t0] step
+
+

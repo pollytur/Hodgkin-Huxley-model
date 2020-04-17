@@ -1,36 +1,41 @@
 module MyProject where
-
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE UnicodeSyntax #-}
-{-# OPTIONS_GHC -Wall -fno-warn-type-defaults #-}
+import Graphics.Gloss
+import DrawingConstants
+import Drawing
+-- run = display (InWindow "Nice Window" (1200, 1200) (200, 200)) blue (Translate (-200) (-200) ((Circle 20)))  
+-- import Graphics.Gloss
+import Prelude          hiding ( lines )
+import Style
 
 import Data.List
---import Data.Vector
-
--- custom files
-import Constants 
-import InputFunctions
-import Biology
 import Calculations
-
 -- libraries for drawing
 import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Cairo
-import Graphics.Gloss
+-- import Graphics.Gloss
 
--- =================================================
--- INPUT VALUES
--- =================================================  
-y = VectorLong (((vl, n_inf), (m_inf, h_inf)),
-  ((gK * (n_inf^4) * (- vK), gNa* (m_inf^3)*h_inf*(- vNa ) ),
-  (gL * (-vl), (gK*(n_inf^4)*(-vK))/(gNa*(m_inf^3)*h_inf*(-vNa))))) :: VectorLong Double
+import Constants 
+import InputFunctions
+-- import Biology
+
+
+run:: IO ()
+run = do {initialModel <- randomState;
+    graphs;
+    simulate displayWindow backgroundColor simulationRate initialModel drawingFunc updateFunc;
+    }
+    where
+      displayWindow = (InWindow "Hodgkin-Huxley-Simulation" (1200, 1200) (20, 20));  drawingFunc = drawWorld
+
+
 
 t = linspace tmin tmax 10000 
     
 -- ==================================
 -- ==================================  
-  
-rgTr= rungeKutta iD2 y t 0.005 
+
+--  rgTr= rungeKutta iD2 y t 0.005  ((tmax - tmin)/10000)
+rgTr= rungeKutta iD2 initialState t 0.005 
 
 one   = Data.List.map (\a->fst(fst(fst (outOfVector a)))) rgTr
 two   = Data.List.map (\a->snd(fst(fst (outOfVector a)))) rgTr
@@ -42,9 +47,8 @@ six   = Data.List.map (\a->snd(fst(snd (outOfVector a)))) rgTr
 seven = Data.List.map (\a->fst(snd(snd (outOfVector a)))) rgTr
 eight = Data.List.map (\a->snd(snd(snd (outOfVector a)))) rgTr
 
- 
-run :: IO ()
-run = (toFile def "neuron_potential.png" $ do
+graphs :: IO ()     
+graphs = (toFile def "neuron_potential.png" $ do
     layout_title .= "Neuron potential"
     setColors [opaque Graphics.Rendering.Chart.Easy.blue, opaque Graphics.Rendering.Chart.Easy.red]
     plot (Graphics.Rendering.Chart.Easy.line "am" [Data.List.zip t one] )) 
@@ -73,3 +77,13 @@ run = (toFile def "neuron_potential.png" $ do
     layout_title .= "K vs NA currents"
     setColors [opaque Graphics.Rendering.Chart.Easy.blue, opaque Graphics.Rendering.Chart.Easy.red]
     plot (Graphics.Rendering.Chart.Easy.line "I_k/I_na" [Data.List.zip t eight] )) 
+
+
+
+
+
+
+
+
+
+
