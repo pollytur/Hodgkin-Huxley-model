@@ -1,6 +1,13 @@
 # Hodgkin Huxley Model in Haskell
+![](images/demo5.gif)
 
 [![Build Status](https://travis-ci.org/iu-haskell-spring-2019/project-template.svg?branch=master)](https://travis-ci.org/iu-haskell-spring-2019/project-template)
+## Description
+* This is a simple simulations of Hodgkin Huxley Model in Haskell. The velocity of the ions is proportional to the current of those ions. The vertical stripes in the middle is membrane - yellow parts are stable, others are channels for ions, their color is derived proportionally to the gating variable from the model. The ratio of ions is [resting potential](https://ru.wikipedia.org/wiki/Потенциал_покоя) ratio.
+
+| Currents                 |  Gating variables  |
+:-------------------------:|:-------------------------:
+![](/images/currents.png) | ![](/images/gating_variables_dynamics.png)
 
 ### Prerequisites
 
@@ -51,6 +58,11 @@ However, in some versions of stack the *exec* file if unavalibale in your local 
 ```
 stack install --local-bin-path=<dir>
 ```
+
+## Test
+ ```
+ stack test --fast
+ ```
 
 ## Interpreter
 
