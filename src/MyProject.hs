@@ -2,9 +2,7 @@ module MyProject where
 import Graphics.Gloss
 import DrawingConstants
 import Drawing
--- run = display (InWindow "Nice Window" (1200, 1200) (200, 200)) blue (Translate (-200) (-200) ((Circle 20)))  
--- import Graphics.Gloss
-import Prelude          hiding ( lines )
+import Prelude         
 import Style
 
 import Data.List
@@ -13,10 +11,8 @@ import Calculations
 import Graphics.Rendering.Chart.Easy
 import Graphics.Rendering.Chart.Backend.Cairo
 -- import Graphics.Gloss
-
 import Constants 
 import InputFunctions
--- import Biology
 
 
 run:: IO ()

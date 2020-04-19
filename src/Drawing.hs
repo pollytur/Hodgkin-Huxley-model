@@ -2,15 +2,11 @@ module Drawing where
 
 import Graphics.Gloss	
 import Graphics.Gloss.Data.Point
-import Calculations
 import Graphics.Gloss.Data.ViewPort
-
-import Graphics.Gloss
 import Graphics.Gloss.Data.Picture
+import Graphics.Gloss.Data.Color
 import DrawingConstants
--- run = display (InWindow "Nice Window" (1200, 1200) (200, 200)) blue (Translate (-200) (-200) ((Circle 20)))  
--- import Graphics.Gloss
-import Prelude          hiding ( lines )
+import Prelude          
 import Style
 import System.Random
 import Constants 
@@ -27,27 +23,26 @@ import Control.Monad
 -- =================================================  
 
 --green is Na, red is K, blue is leak
-data Element = Na | K |Leak deriving(Eq)
+data Element = Na | K |Leak deriving(Eq, Show)
 
 data Ion = Ion {
 	el     :: Element
 	, x    :: Float
 	, y    :: Float
 	, vx   :: Float
-    , vy   :: Float} deriving(Eq)
+    , vy   :: Float} deriving(Eq, Show)
 
 data World = World { 
-	-- ionsNa       :: [Ion] ,
-	-- ionsK        :: [Ion] ,
-	-- ionsLeak     :: [Ion] ,
 	ions 		 :: [Ion] ,
-	membrane     :: [Float],
-	state 		 :: VectorLong Double ,
+	membrane :: [Float],
+  hole     :: [Float],
+  holeCol  :: Color,
+	state 	 :: VectorLong Double ,
 	time		 :: Double
 }
 
-toIon :: Element->Float ->Float -> Ion
-toIon element x0 y0 = Ion{el=element, x=x0, y=y0, vx=0, vy=0}	
+-- toIon :: Element->Float ->Float -> Ion
+-- toIon element x0 y0 = Ion{el=element, x=x0, y=y0, vx=0, vy=0}	
 
 -- =================================================
 -- Initial State (make it a separate file further)
@@ -61,15 +56,18 @@ initialState = VectorLong (((vl, n_inf), (m_inf, h_inf)),
 -- Update Functions
 -- ================================================= 
 
-
 updateFunc :: Graphics.Gloss.Data.ViewPort.ViewPort-> Float -> World -> World
-updateFunc _ dt (World {ions = ion, membrane = mem, state = st, time = t}) = 
-  World {ions = ionNew, membrane = mem, state = newState,time =(t+(GHC.Float.float2Double dt)) }
+updateFunc _ dt (World {ions = ion, membrane = mem, hole=h,holeCol =hc, state = st, time = t}) = 
+  World {ions = ionNew, membrane = mem, hole=h,holeCol = col, state = newState,time =(t+(GHC.Float.float2Double dt)) }
   where
     newState = oneStep iD2 st (t+(GHC.Float.float2Double dt)) (GHC.Float.float2Double dt)
     curK   = normalize (fst(fst(snd (outOfVector newState))))
     curNa  = normalize (snd(fst(snd (outOfVector newState))))
     curL   = normalize (fst(snd(snd (outOfVector newState))))
+    gatN   = round (fst(fst(snd (outOfVector newState)))*255) :: Int
+    gatM   = round (snd(fst(snd (outOfVector newState)))*255) :: Int
+    gatH   = round (fst(snd(snd (outOfVector newState)))*255) :: Int
+    col    = makeColorI gatN gatM gatH 255
     ionNew = map (\i->(updateIon i dt curK curNa curL)) ion
 
 
@@ -79,7 +77,6 @@ normalize a
 	|otherwise = 0.0
 
 
--- stupid method that does not take into account already existing velocity
 updateVelocity :: Element -> Float -> Float ->Float -> Float
 updateVelocity el curK curNa curL
 	|el == Na = curNa*2
@@ -93,7 +90,7 @@ updateIon Ion{el=elem, x=x0, y=y0, vx = vx0, vy = vy0} dt curK curNa curL =
 	where
 		x1  = x0 + vx0*dt
 		y1  = y0 + vy0*dt
-		vx1 = updateVelocity elem curK curNa curL
+		vx1 = updateVelocity elem curK curNa curL 
 		vy1 = 0 
 
 -- =================================================
@@ -104,7 +101,13 @@ updateIon Ion{el=elem, x=x0, y=y0, vx = vx0, vy = vy0} dt curK curNa curL =
 membraneParts :: Float -> Float -> [Float]
 membraneParts curr bound 
 	| curr < (-1)*bound = []
-	| otherwise = curr : membraneParts (curr - membrane_distance - membrane_height) bound 
+	| otherwise = curr : membraneParts (curr - membrane_distance - membrane_height) bound
+
+
+holes :: [Float]-> [Float]    
+holes lst = map (\el -> ((fst el)+(snd el))/2) combined
+  where
+    combined = zip lst (tail lst)    
 
 
 randomIon :: Bool -> Element -> IO Ion
@@ -120,8 +123,6 @@ randomIon bol element = do{ x <- randomRIO (a, b);
                    False -> field_bound
                 
    
-
-
 randomState :: IO World
 randomState = do {kin   <- (replicateM number_of_potassium_in  (randomIon True  K)) 
                    +++ (replicateM number_of_potassium_out (randomIon False K)) 
@@ -136,6 +137,8 @@ emptyState :: World
 emptyState = World { ions = [],
                    membrane = (membraneParts field_bound field_bound), 
                    state = initialState, 
+                   hole = (holes (membraneParts field_bound field_bound)),
+                   holeCol = makeColorI 0 0 0 0, 
                    time = 0.0
                    }  
 
@@ -145,12 +148,13 @@ emptyState = World { ions = [],
 -- =================================================  
 
 drawWorld :: World -> Picture
-drawWorld World{ions = ion, membrane =mem, state =st, time=t} = 
-  pictures [membraneDrawn, ionsDrawn, labels]
+drawWorld World{ions = ion, membrane =mem, hole = h, holeCol =c,  state =st, time=t} = 
+  pictures [hol, membraneDrawn, ionsDrawn, labels]
 	where
         ionsDrawn = drawIons ion
         membraneDrawn = drawMembrane mem
         labels = pictures [labelOne, labelTwo]
+        hol = drawInHoles h c
 
 
 labelOne :: Picture
@@ -184,7 +188,7 @@ drawIons ions = pictures lst
 
 
 drawIon :: Ion -> Picture 
-drawIon Ion{el=e, x=x0, y=y0, vx=vx0 , vy=vy0} 
+drawIon Ion{el=e, x=x0, y=y0} 
 	|e==Na   = drawBall x0 y0 sodium_ion "Na+"
 	|e==K    = drawBall x0 y0 potassium_ion "K+"
 	|e==Leak = drawBall x0 y0 leak_ion "Cl-"
@@ -204,19 +208,28 @@ drawMembrane :: [Float] -> Picture
 drawMembrane lst = pictures (map drawMembranePart lst)
 
 
+drawInHoles:: [Float] -> Color ->Picture
+drawInHoles lst c = pictures (map (drawHole c) lst)
+
+drawHole :: Color -> Float -> Picture
+drawHole c delta_y 
+        = Color c
+        $ Translate 0 delta_y
+        $ rectangleSolid membrane_width (membrane_distance - membrane_height)  
+
 drawMembranePart :: Float-> Picture
 drawMembranePart  delta_y
         = Color membraneColor
         $ Translate 0 delta_y
-        $ rectangleSolid membrane_width membrane_height 
+        $ rectangleSolid membrane_width membrane_height
 
 -- =================================================
 -- Help Functions
 -- ================================================= 
-distance :: Point -> Point -> Float
-distance (x1, y1) (x2, y2) = sqrt (dx * dx + dy * dy)
-    where dx = x2 - x1
-          dy = y2 - y1
+-- distance :: Point -> Point -> Float
+-- distance (x1, y1) (x2, y2) = sqrt (dx * dx + dy * dy)
+--     where dx = x2 - x1
+--           dy = y2 - y1
 
 (+++) :: Monad m => m [a] -> m [a] -> m [a]
 ms1 +++ ms2 = do

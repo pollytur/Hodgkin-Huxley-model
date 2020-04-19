@@ -20,7 +20,7 @@ outOfVector (VectorLong vec) = vec
 -- tmax is not included
 linspace :: Double -> Double -> Double ->[Double] 
 linspace start stop steps 
-  |start ==stop =[]
+  |start ==stop =[stop]
   |otherwise = start : linspace (start+(stop-start)/steps) stop (steps-1)
   
 
