@@ -1,7 +1,9 @@
 module InputFunctions where
 
 -- t0 is assumes as time
--- Input stimulus
+-- Each ID function is Input stimulus
+-- one of those functions is given to the Runge-Kutta 
+-- and it solves the model corresponding to the stimulus
 iD2 :: Double -> Double
 iD2 t0
   |1.0  <t0 && t0< 2.0     = 150.0

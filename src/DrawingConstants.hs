@@ -25,8 +25,6 @@ membrane_width     = 50.0  :: Float
 membrane_height    = 100.0 :: Float
 membrane_distance  = 30.0  :: Float
 
-simulationRate = 100        :: Int
+simulationRate = 100       :: Int
 shift = 20.0			   :: Float
-
--- is int?
 field_bound = 500.0        :: Float 

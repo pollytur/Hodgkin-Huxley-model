@@ -1,6 +1,6 @@
 module Main where
 
-import           MyProject
+import           HodgkinHuxley
 
 main :: IO ()
 main = run

@@ -1,4 +1,4 @@
-module MyProject where
+module HodgkinHuxley where
 import Graphics.Gloss
 import DrawingConstants
 import Drawing (drawWorld, updateFunc, initialState, randomState)

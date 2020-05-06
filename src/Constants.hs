@@ -21,9 +21,6 @@ gL_original = 0.3    ::Double
 gL = 0.3             ::Double
 -- Membrane capacitance per unit area (uF/cm^2)
 cm_original = 1.0    ::Double
-
--- TODO FIND VALUE IN THE BOOK
-
 cm = 1.0             ::Double
 
 -- Same as E_x in the EPFL book
@@ -39,7 +36,3 @@ vNa = 55.0           ::Double
 -- Leak potential (mV)
 vl_original = 10.613 ::Double
 vl = - 65.0          ::Double
-
-
-
-
