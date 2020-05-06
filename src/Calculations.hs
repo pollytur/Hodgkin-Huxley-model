@@ -1,9 +1,7 @@
 module Calculations where
+-- this module solve Hodgkin-Huxley model numerically with Runge-Kutta method
 
 import Data.List
---import Data.Vector
-
--- custom files
 import Constants 
 import InputFunctions
 import Biology
@@ -45,9 +43,6 @@ calNewYTypeTwo::Double -> Double -> Double->(Double->Double)->(Double->Double)->
 calNewYTypeTwo var vm step alpha beta = var+k1*step
   where
   k1 = comDertypeTwo (var, vm)                  alpha beta
-  --k2 = comDertypeTwo (var+step*k1/2, vm+step/2) alpha beta
- -- k3 = comDertypeTwo (var+step*k2/2, vm+step/2) alpha beta
- -- k4 = comDertypeTwo (var+step*k3, vm+step)     alpha beta
 
 
 -- vm is y in this case
@@ -77,10 +72,8 @@ rungeKutta inputf (VectorLong(((vm0,n0),(m0, h0)), a)) (t0:time) step
   
   lst = VectorLong (((vm, n), (m, h)),((gK0, gNa0),(gL0, gK0/gNa0)))
 
-
--- defineModel:: (Double->Double)->Double->(VectorLong Double->[Double]->[VectorLong  Double])
--- defineModel inputf step = rungeKutta inputf
-
+-- this function simulated runge-kutta for 1 dt
+-- it is needed for drawing
 oneStep :: (Double->Double)->VectorLong Double -> Double -> Double ->VectorLong  Double
 oneStep inputf vect t0 step = head res
   where

@@ -1,4 +1,14 @@
 module Biology where
+
+-- this module represents some biological values' changes with experimetally defined coeficients
+
+-- n, m, h are gating variables, representing the possibility of 
+-- respectively K+, Na+ and Cl- channels to be open for the corresponding ions 
+-- if channel is closed, hence, the ion cannot cross the membrane
+
+-- alpha, beta are functions with heuristically estimated coefficient. 
+-- From Hodgkin-Huxley equations it is possible to define only the general type of alpha and beta functions
+
 -- ===================================================
 -- _origin are values suggested bu Hodgkin and Huxley
 -- ===================================================
@@ -27,9 +37,9 @@ alpha_h_origin vm = 0.07 * exp(-vm / 20.0)
 beta_h_origin :: Double -> Double
 beta_h_origin vm =  1.0 / (exp(3.0 - (0.1 * vm)) + 1.0)
 
--- ===================================================
--- values that are standard now
--- ===================================================
+-- ==========================================================================
+-- values that are standard now (taken from EPFL book, referenced in README)
+-- ==========================================================================
 
 alpha_n :: Double -> Double
 alpha_n vm = (0.02 * (vm - 25.0)) /(1.0- exp((25.0-vm)/9.0))
@@ -51,7 +61,7 @@ beta_h :: Double -> Double
 beta_h vm =  0.25 * exp((vm+62.0)/ 6.0)/exp((vm+90.0)/12.0)
  
 
--- n, m, and h steady-state (at infinity, when potential difference=0) 
+-- n_inf, m_inf, and h_inf steady-state (at infinity, when potential difference=0) 
 n_inf :: Double 
 n_inf = alpha_n vm / (alpha_n vm + beta_n vm) where vm = 0
 

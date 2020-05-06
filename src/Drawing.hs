@@ -1,18 +1,13 @@
 module Drawing where
 
-import Graphics.Gloss	
-import Graphics.Gloss.Data.Point
+import Graphics.Gloss
 import Graphics.Gloss.Data.ViewPort
-import Graphics.Gloss.Data.Picture
-import Graphics.Gloss.Data.Color
 import DrawingConstants
 import Prelude          
 import Style
-import System.Random
 import Constants 
 import InputFunctions
 import Biology
-
 import Calculations
 import GHC.Float
 import System.Random
@@ -26,28 +21,25 @@ import Control.Monad
 data Element = Na | K |Leak deriving(Eq, Show)
 
 data Ion = Ion {
-	el     :: Element
-	, x    :: Float
-	, y    :: Float
-	, vx   :: Float
-    , vy   :: Float} deriving(Eq, Show)
+  el     :: Element
+  , x    :: Float
+  , y    :: Float
+  , vx   :: Float
+  , vy   :: Float} deriving(Eq, Show)
 
 data World = World { 
-	ions 		 :: [Ion] ,
-	membrane :: [Float],
+  ions     :: [Ion] ,
+  membrane :: [Float],
   hole     :: [Float],
   holeCol  :: Color,
-	state 	 :: VectorLong Double ,
-	time		 :: Double
+  state    :: VectorLong Double ,
+  time     :: Double
 }
-
--- toIon :: Element->Float ->Float -> Ion
--- toIon element x0 y0 = Ion{el=element, x=x0, y=y0, vx=0, vy=0}	
 
 -- =================================================
 -- Initial State (make it a separate file further)
 -- ================================================= 
-
+initialState :: VectorLong Double
 initialState = VectorLong (((vl, n_inf), (m_inf, h_inf)),
   ((gK * (n_inf^4) * (- vK), gNa* (m_inf^3)*h_inf*(- vNa ) ),
   (gL * (-vl), (gK*(n_inf^4)*(-vK))/(gNa*(m_inf^3)*h_inf*(-vNa))))) :: VectorLong Double
@@ -55,9 +47,9 @@ initialState = VectorLong (((vl, n_inf), (m_inf, h_inf)),
 -- =================================================
 -- Update Functions
 -- ================================================= 
-
+-- updates all ions and colors of membranes' holes
 updateFunc :: Graphics.Gloss.Data.ViewPort.ViewPort-> Float -> World -> World
-updateFunc _ dt (World {ions = ion, membrane = mem, hole=h,holeCol =hc, state = st, time = t}) = 
+updateFunc _ dt (World {ions = ion, membrane = mem, hole=h,holeCol =_, state = st, time = t}) = 
   World {ions = ionNew, membrane = mem, hole=h,holeCol = col, state = newState,time =(t+(GHC.Float.float2Double dt)) }
   where
     newState = oneStep iD2 st (t+(GHC.Float.float2Double dt)) (GHC.Float.float2Double dt)
@@ -73,25 +65,27 @@ updateFunc _ dt (World {ions = ion, membrane = mem, hole=h,holeCol =hc, state = 
 
 normalize :: Double -> Float
 normalize a 
-	| (abs a) >= 0.1 = GHC.Float.double2Float a
-	|otherwise = 0.0
+  | (abs a) >= 0.1 = GHC.Float.double2Float a
+  |otherwise = 0.0
 
 
+-- velocity is proportional to the current from Hodking-Huxley model
 updateVelocity :: Element -> Float -> Float ->Float -> Float
-updateVelocity el curK curNa curL
-	|el == Na = curNa*2
-	|el == K  = curK*2
-	|otherwise = curL*2
+updateVelocity element curK curNa curL
+  |element == Na = curNa*2
+  |element == K  = curK*2
+  |otherwise = curL*2
 
--- to do add y velocity to go to holes in membrane
+
+-- updates ion's position and velocity
 updateIon :: Ion -> Float  -> Float -> Float -> Float ->  Ion
-updateIon Ion{el=elem, x=x0, y=y0, vx = vx0, vy = vy0} dt curK curNa curL =
-	Ion{el=elem, x=x1, y=y1, vx = vx1, vy = vy1}
-	where
-		x1  = x0 + vx0*dt
-		y1  = y0 + vy0*dt
-		vx1 = updateVelocity elem curK curNa curL 
-		vy1 = 0 
+updateIon Ion{el=element, x=x0, y=y0, vx = vx0, vy = vy0} dt curK curNa curL =
+  Ion{el=element, x=x1, y=y1, vx = vx1, vy = vy1}
+  where
+    x1  = x0 + vx0*dt
+    y1  = y0 + vy0*dt
+    vx1 = updateVelocity element curK curNa curL 
+    vy1 = 0 
 
 -- =================================================
 -- Generate the World
@@ -100,20 +94,22 @@ updateIon Ion{el=elem, x=x0, y=y0, vx = vx0, vy = vy0} dt curK curNa curL =
 -- bound should be positive
 membraneParts :: Float -> Float -> [Float]
 membraneParts curr bound 
-	| curr < (-1)*bound = []
-	| otherwise = curr : membraneParts (curr - membrane_distance - membrane_height) bound
+  | curr < (-1)*bound = []
+  | otherwise = curr : membraneParts (curr - membrane_distance - membrane_height) bound
 
 
+-- centers of holes between membrane parts
 holes :: [Float]-> [Float]    
-holes lst = map (\el -> ((fst el)+(snd el))/2) combined
+holes lst = map (\part -> ((fst part)+(snd part))/2) combined
   where
     combined = zip lst (tail lst)    
 
 
+-- define initial random position for 1 ion
 randomIon :: Bool -> Element -> IO Ion
-randomIon bol element = do{ x <- randomRIO (a, b);
-                y <- randomRIO (-field_bound, field_bound);
-                return $ Ion { el = element, x = x,y= y, vx=0,vy=0} }
+randomIon bol element = do{ x0 <- randomRIO (a, b);
+                y0 <- randomRIO (-field_bound, field_bound);
+                return $ Ion { el = element, x = x0,y= y0, vx=0,vy=0} }
                 where
                 a = case bol of 
                    True ->  -field_bound; 
@@ -122,7 +118,8 @@ randomIon bol element = do{ x <- randomRIO (a, b);
                    True ->  0; 
                    False -> field_bound
                 
-   
+
+-- randomly define ions places at the begining of the demo   
 randomState :: IO World
 randomState = do {kin   <- (replicateM number_of_potassium_in  (randomIon True  K)) 
                    +++ (replicateM number_of_potassium_out (randomIon False K)) 
@@ -131,8 +128,9 @@ randomState = do {kin   <- (replicateM number_of_potassium_in  (randomIon True  
                    +++ (replicateM number_of_leak_in  (randomIon True Leak ))
                    +++ (replicateM number_of_leak_out (randomIon False Leak ))  ;
                   return $ emptyState { ions = kin }}                    
-                 
 
+                 
+-- define initial world without ions
 emptyState :: World
 emptyState = World { ions = [],
                    membrane = (membraneParts field_bound field_bound), 
@@ -146,17 +144,18 @@ emptyState = World { ions = [],
 -- =================================================
 -- Rendering
 -- =================================================  
-
+-- draws all ions, membrane, membrane holes etc
 drawWorld :: World -> Picture
-drawWorld World{ions = ion, membrane =mem, hole = h, holeCol =c,  state =st, time=t} = 
+drawWorld World{ions = ion, membrane =mem, hole = h, holeCol =c,  state =_, time=_} = 
   pictures [hol, membraneDrawn, ionsDrawn, labels]
-	where
+  where
         ionsDrawn = drawIons ion
         membraneDrawn = drawMembrane mem
         labels = pictures [labelOne, labelTwo]
         hol = drawInHoles h c
 
 
+-- labels to notify where is inside and outside cell space
 labelOne :: Picture
 labelOne = Color white
         $ Translate (-400) 450
@@ -182,16 +181,16 @@ labelTwo = Color white
 
 
 drawIons :: [Ion] -> Picture
-drawIons ions = pictures lst
-	where
-		lst = map drawIon ions
+drawIons ionsToDraw = pictures lst
+  where
+    lst = map drawIon ionsToDraw
 
 
 drawIon :: Ion -> Picture 
 drawIon Ion{el=e, x=x0, y=y0} 
-	|e==Na   = drawBall x0 y0 sodium_ion "Na+"
-	|e==K    = drawBall x0 y0 potassium_ion "K+"
-	|e==Leak = drawBall x0 y0 leak_ion "Cl-"
+  |e==Na   = drawBall x0 y0 sodium_ion "Na+"
+  |e==K    = drawBall x0 y0 potassium_ion "K+"
+  |e==Leak = drawBall x0 y0 leak_ion "Cl-"
 
 
 drawBall :: Float -> Float ->Color -> String -> Picture
@@ -208,14 +207,19 @@ drawMembrane :: [Float] -> Picture
 drawMembrane lst = pictures (map drawMembranePart lst)
 
 
+-- updates all membrane holes' color
 drawInHoles:: [Float] -> Color ->Picture
 drawInHoles lst c = pictures (map (drawHole c) lst)
 
+
+-- holes in membrane = parts which change colors
+-- this function updates one hole
 drawHole :: Color -> Float -> Picture
 drawHole c delta_y 
         = Color c
         $ Translate 0 delta_y
         $ rectangleSolid membrane_width (membrane_distance - membrane_height)  
+
 
 drawMembranePart :: Float-> Picture
 drawMembranePart  delta_y
